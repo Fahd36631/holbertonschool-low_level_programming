@@ -3,62 +3,56 @@
 
 /**
  * _atoi - convert a string to an integer
- * @s: input C-string
+ * @s: input C string
  *
- * Return: converted int value, or 0 if no digits. On overflow,
- *         returns INT_MAX / INT_MIN depending on the sign.
+ * Return: the integer value represented by the string.
+ *         If no digits are found, returns 0.
  */
 int _atoi(char *s)
 {
-        int i = 0;
-        int sign = 1;
-        int found = 0;
+	int sign = 1;
+	int started = 0;
+	int acc = 0; /* keep it negative to handle INT_MIN safely */
 
-        /* scan until first digit; track sign flips before digits */
-        while (s[i] != '\0')
-        {
-                if (s[i] == '-')
-                        sign = -sign;
-                else if (s[i] == '+')
-                        ; /* keep sign as-is */
-                else if (s[i] >= '0' && s[i] <= '9')
-                {
-                        found = 1;
-                        break;
-                }
-                i++;
-        }
+	while (*s)
+	{
+		if (!started)
+		{
+			if (*s == '-')
+				sign = -sign;
+			else if (*s == '+')
+				; /* ignore */
+			else if (*s >= '0' && *s <= '9')
+			{
+				int d = *s - '0';
 
-        if (!found)
-                return (0);
+				/* overflow check before acc = acc * 10 - d */
+				if (acc < (INT_MIN + d) / 10)
+					return (sign == 1 ? INT_MAX : INT_MIN);
+				acc = acc * 10 - d;
+				started = 1;
+			}
+			else if ((*s >= '0' && *s <= '9') == 0)
+				; /* still skipping non-digits before the number */
+		}
+		else
+		{
+			if (*s < '0' || *s > '9')
+				break;
+			else
+			{
+				int d = *s - '0';
 
-        if (sign == 1)
-        {
-                int res = 0;
+				if (acc < (INT_MIN + d) / 10)
+					return (sign == 1 ? INT_MAX : INT_MIN);
+				acc = acc * 10 - d;
+			}
+		}
+		s++;
+	}
 
-                for (; s[i] >= '0' && s[i] <= '9'; i++)
-                {
-                        int d = s[i] - '0';
+	if (!started)
+		return (0);
 
-                        if (res > (INT_MAX - d) / 10)
-                                return (INT_MAX);
-                        res = res * 10 + d;
-                }
-                return (res);
-        }
-        else
-        {
-                /* build directly as negative to safely reach INT_MIN */
-                int res = 0;
-
-                for (; s[i] >= '0' && s[i] <= '9'; i++)
-                {
-                        int d = s[i] - '0';
-
-                        if (res < (INT_MIN + d) / 10)
-                                return (INT_MIN);
-                        res = res * 10 - d;
-                }
-                return (res);
-        }
+	return (sign == 1 ? -acc : acc);
 }
