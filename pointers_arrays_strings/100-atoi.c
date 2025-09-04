@@ -1,58 +1,30 @@
 #include "main.h"
-#include <limits.h>
 
 /**
- * _atoi - convert a string to an integer
- * @s: input C string
+ * _atoi - converts a string to an integer
+ * @s: input string
  *
- * Return: the integer value represented by the string.
- *         If no digits are found, returns 0.
+ * Return: integer converted from string
  */
 int _atoi(char *s)
 {
-	int sign = 1;
-	int started = 0;
-	int acc = 0; /* keep it negative to handle INT_MIN safely */
+	int i = 0, sign = 1, num = 0, started = 0;
 
-	while (*s)
+	while (s[i] != '\0')
 	{
-		if (!started)
+		if (s[i] == '-')
+			sign *= -1;
+		else if (s[i] == '+')
+			sign *= 1;
+		else if (s[i] >= '0' && s[i] <= '9')
 		{
-			if (*s == '-')
-				sign = -sign;
-			else if (*s == '+')
-				; /* ignore */
-			else if (*s >= '0' && *s <= '9')
-			{
-				int d = *s - '0';
-
-				/* overflow check before acc = acc * 10 - d */
-				if (acc < (INT_MIN + d) / 10)
-					return (sign == 1 ? INT_MAX : INT_MIN);
-				acc = acc * 10 - d;
-				started = 1;
-			}
-			else if ((*s >= '0' && *s <= '9') == 0)
-				; /* still skipping non-digits before the number */
+			started = 1;
+			num = num * 10 + (s[i] - '0');
 		}
-		else
-		{
-			if (*s < '0' || *s > '9')
-				break;
-			else
-			{
-				int d = *s - '0';
-
-				if (acc < (INT_MIN + d) / 10)
-					return (sign == 1 ? INT_MAX : INT_MIN);
-				acc = acc * 10 - d;
-			}
-		}
-		s++;
+		else if (started)
+			break;
+		i++;
 	}
 
-	if (!started)
-		return (0);
-
-	return (sign == 1 ? -acc : acc);
+	return (num * sign);
 }
